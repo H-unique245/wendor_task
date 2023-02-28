@@ -94,6 +94,18 @@ product.delete("/:id", async (req, res) => {
   }
 });
 
+product.patch('/edit/:id', async (req, res) => {
+  const payload = req.body;
+  const { id } = req.params;
+  try {
+      const UpdateProduct = await ProductModel.findByIdAndUpdate({_id:id},payload);
+      await UpdateProduct.save();
+      res.send({ message: "Product Updated Successfully!!" })
+  } catch (err) {
+      res.status(400).send({ message: err.message })
+  }
+})
+
 module.exports = product;
 
 // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmRhY2I4OTlmM2Y4Y2Q0ZTkzNTQyMiIsIm5hbWUiOiJCYXRtYW4iLCJlbWFpbCI6ImJhdG1hbkBnYW1pbC5jb20iLCJpYXQiOjE2Nzc1Njk5MjMsImV4cCI6MTY3ODE3NDcyM30.ESJf6zeGQPkN_Xm_S2XTv12EIZKcPVhm5ZFg_K8V4XU

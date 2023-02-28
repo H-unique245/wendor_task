@@ -20,6 +20,23 @@ user.post("/signup", async (req, res) => {
   }
 });
 
+user.post("/loginwithphone", async (req, res) => {
+  const { phone } = req.body;
+  const user = await UserModel.findOne({ phone });
+
+  if (user) {
+    const token = jwt.sign(
+      { id: user._id, name: user.name, email: user.email },
+      "UNI@245_wendor",
+      {
+        expiresIn: "7 days",
+      }
+    );
+    return res.send({ message: "Login Success with Phone", token });
+  }
+  return res.status(401).send({message:"Invalid credentials"});
+});
+
 user.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const user = await UserModel.findOne({ email });
