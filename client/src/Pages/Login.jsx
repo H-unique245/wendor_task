@@ -10,14 +10,60 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import { authentication } from "../Components/firbase-config";
+import {  RecaptchaVerifier,signInWithPhoneNumber  } from "firebase/auth";
 import { Link } from "react-router-dom";
+import axios from "axios";
+
+const GenerateRecaptcha=()=>{
+  window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-verify', {
+    'size': 'invisible',
+    'callback': (response) => {
+      // reCAPTCHA solved, allow signInWithPhoneNumber.
+      // ...
+    }
+  }, authentication);
+}
 
 export default function LoginPage() {
-  const [phone, setPhone] = useState(0);
+  const [phone, setPhone] = useState('+91');
 
-  const hanldeSubmitPhone = (e) => {
+  const hanldeSubmitPhone = async(e) => {
     e.preventDefault();
-    console.log("Number", phone);
+    // phone check --- api request backend
+    let mobile= +phone.slice(3,13);
+    console.log(mobile)
+   try{
+    let res= await axios.post("http://localhost:8080/user/loginwithphone",{phone:mobile});
+   
+    // res --- true
+    if(res.data.message ==="Login Success with Phone"){
+  // firebase otp request
+    GenerateRecaptcha();
+
+    const appVerifier= window.recaptchaVerifier;
+    signInWithPhoneNumber(authentication, phone, appVerifier)
+    .then((confirmationResult) => {
+      // SMS sent. Prompt user to type the code from the message, then sign the
+      // user in with confirmationResult.confirm(code).
+      window.confirmationResult = confirmationResult;
+      // ...
+    }).catch((error) => {
+      // Error; SMS not sent
+      console.log(error);
+      // ...
+    });
+    }
+    // else --> not in DB
+     else{
+      alert("Signup with number")
+     }
+   }
+   catch(err){
+    alert("Signup with number")
+   }
+    
+
   };
   return (
     <Flex
@@ -46,14 +92,14 @@ export default function LoginPage() {
           You&apos;ll get an OTP on your phone
         </Text>
         <form onSubmit={hanldeSubmitPhone}>
-          <FormControl id="email" isRequired>
+          <FormControl id="phone" isRequired>
             <FormLabel>Enter Phone Number</FormLabel>
             <Input
               placeholder="e.g. 9876543210"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               _placeholder={{ color: "gray.500" }}
-              type="number"
+              type="tel"
             />
           </FormControl>
           <Stack spacing={6}>
@@ -68,6 +114,7 @@ export default function LoginPage() {
             />
           </Stack>
         </form>
+        <Box id="recaptcha-verify"> </Box>
         <Box textColor={"blue"} textDecoration={"underline"}>
           <Link to="/login">Login with password</Link>
         </Box>
