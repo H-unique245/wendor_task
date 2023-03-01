@@ -39,7 +39,7 @@ export default function Footer() {
   return (
     <Box
       bg={useColorModeValue("gray.50", "gray.900")}
-      position="fixed"
+      position="relative"
       bottom={0}
       left={0}
       right={0}

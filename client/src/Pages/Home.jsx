@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Button,
   ButtonGroup,
@@ -23,26 +23,35 @@ import {
   Input,
   useDisclosure,
   useToast,
+  Box,
 } from "@chakra-ui/react";
 import axios from "axios";
+import AddProduct from "../Components/AddProductForm";
+import { AppContext } from "../Context/AppContext";
+import ProductUpdate from "../Components/ProductUpdate";
 
 let token =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmRhY2I4OTlmM2Y4Y2Q0ZTkzNTQyMiIsIm5hbWUiOiJCYXRtYW4iLCJlbWFpbCI6ImJhdG1hbkBnYW1pbC5jb20iLCJpYXQiOjE2Nzc1Njk5MjMsImV4cCI6MTY3ODE3NDcyM30.ESJf6zeGQPkN_Xm_S2XTv12EIZKcPVhm5ZFg_K8V4XU";
-function Home() {
+
+  function Home() {
+  // const { token } = useContext(AppContext);
   const [products, setProducts] = useState([]);
   const [product, setProduct] = useState({});
   const { isOpen, onOpen, onClose } = useDisclosure();
   const initialRef = React.useRef(null);
   const finalRef = React.useRef(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [dataUpdate,setDataUpdate]=useState({});
+  const [isModalupdateVisible, setIsModalupdateVisible] = useState(false);
   const toast = useToast();
 
-  const handleformData = ({ target }) => {
-    let val = target.value;
-    if (target.name === "price") {
-      val = +target.value;
-    }
-    setProduct({ ...product, [target.name]: val });
-  };
+  // const handleformData = ({ target }) => {
+  //   let val = target.value;
+  //   if (target.name === "price") {
+  //     val = +target.value;
+  //   }
+  //   setProduct({ ...product, [target.name]: val });
+  // };
   async function getData() {
     let res = await axios.get("http://localhost:8080/product/usersProduct", {
       headers: {
@@ -53,37 +62,23 @@ function Home() {
     setProducts(res.data.data);
   }
 
-  // const handleSubmit = () => {
+  // const handleUpdate=async(payload)=>{
+
+  //   let res = await axios.put(`http://localhost:8080/product/edit/${payload._id}`,payload)
   //   onClose();
   //   toast({
-  //     title: "Product updated",
-  //     status: "info",
+  //     title: res.data.message,
+  //     status: "success",
   //     duration: 2000,
   //     isClosable: true,
   //     position: "top",
   //   });
-  // }; 
+  // }
 
-  const handleUpdate=async(payload)=>{
-
-    // let res = await axios.patch(`http://localhost:8080/product/edit/${payload._id}`,payload)
-  //   let res=  await fetch(`http://localhost:8080/product/edit/${payload._id}`, {
-  //     body: JSON.stringify(payload),
-  //   method: "PATCH",
-  //   headers: {
-  //       "Content-Type": "application/json",
-  //   },
-  // });
-  // console.log("check",res)
-  console.log("check",payload)
-    // onClose();
-    // toast({
-    //   title: res.data.message,
-    //   status: "info",
-    //   duration: 2000,
-    //   isClosable: true,
-    //   position: "top",
-    // });
+  const handleUpdateModal=(data)=>{
+  setIsModalupdateVisible(true); 
+  setDataUpdate(data)  ;
+  console.log("data",data)
   }
 
   const handleDelete=async(id)=>{
@@ -96,6 +91,23 @@ function Home() {
   return (
     <div>
       <Heading>Product data</Heading>
+      <Box>
+      <Button
+            fontSize={{ base: "8px", sm: "10px", md: "15px" }}
+            bgColor="green.400"
+            color="white"
+            onClick={() => setIsModalVisible(true)}
+          >
+            {" "}
+            Add Product
+          </Button>
+          {isModalVisible && (
+            <AddProduct
+            isAddModalVisible={isModalVisible}
+            setIsAddModalVisible={setIsModalVisible}
+            />)
+          }
+      </Box>
       <SimpleGrid columns={[2, 3, 4]} gap={5} p={10}>
         {products.map(({ _id, title, description, price, image_url }) => (
           <Card maxW="sm" key={_id} boxShadow={"md"}>
@@ -118,12 +130,24 @@ function Home() {
                 margin="auto"
                 spacing={10}
               >
-                <Button variant="solid" colorScheme="teal" onClick={() => {
-                        onOpen();
-                        setProduct({ _id, title, description, price, image_url });
-                      }}>
+                <Button variant="solid" colorScheme="teal" 
+                onClick={()=>handleUpdateModal({ _id, title, description, price, image_url })}
+                // onClick={() => {
+                //         onOpen();
+                //         setProduct({ _id, title, description, price, image_url });
+                //       }}
+                      >
                   Update
                 </Button>
+                {
+                  isModalupdateVisible && (
+                    <ProductUpdate
+                     isUpdateModalVisible={isModalupdateVisible}
+                     setIsUpdateModalVisible={setIsModalupdateVisible}
+                     data= {dataUpdate}
+                    />
+                  )
+                }
                 <Button variant="outline" colorScheme="red" onClick={()=>handleDelete(_id)}>
                   Delete
                 </Button>
@@ -132,7 +156,7 @@ function Home() {
           </Card>
         ))}
       </SimpleGrid>
-      <Modal
+      {/* <Modal
           initialFocusRef={initialRef}
           finalFocusRef={finalRef}
           isOpen={isOpen}
@@ -178,6 +202,7 @@ function Home() {
                 <Input
                   onChange={handleformData}
                   placeholder="In ₹ "
+                  type={'number'}
                   value={product.price}
                   name="price"
                 />
@@ -191,7 +216,7 @@ function Home() {
               <Button onClick={onClose}>Cancel</Button>
             </ModalFooter>
           </ModalContent>
-        </Modal>
+        </Modal> */}
     </div>
   );
 }

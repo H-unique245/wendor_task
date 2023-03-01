@@ -9,61 +9,74 @@ import {
   FormLabel,
   Box,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { authentication } from "../Components/firbase-config";
-import {  RecaptchaVerifier,signInWithPhoneNumber  } from "firebase/auth";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import VerifyOTP from "../Components/OTPPage";
+import { AppContext } from "../Context/AppContext";
 
-const GenerateRecaptcha=()=>{
-  window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-verify', {
-    'size': 'invisible',
-    'callback': (response) => {
-      // reCAPTCHA solved, allow signInWithPhoneNumber.
-      // ...
-    }
-  }, authentication);
-}
+const GenerateRecaptcha = () => {
+  window.recaptchaVerifier = new RecaptchaVerifier(
+    "recaptcha-verify",
+    {
+      size: "invisible",
+      callback: (response) => {
+        // reCAPTCHA solved, allow signInWithPhoneNumber.
+        // ...
+      },
+    },
+    authentication
+  );
+};
 
 export default function LoginPage() {
-  const [phone, setPhone] = useState('+91');
+  const [phone, setPhone] = useState("+91");
+  const [showOTP, setShowOTP] = useState(false);
+  const { loginUser,token } = useContext(AppContext);
 
-  const hanldeSubmitPhone = async(e) => {
+  const hanldeSubmitPhone = async (e) => {
     e.preventDefault();
     // phone check --- api request backend
-    let mobile= +phone.slice(3,13);
-    console.log(mobile)
-   try{
-    let res= await axios.post("http://localhost:8080/user/loginwithphone",{phone:mobile});
-   
-    // res --- true
-    if(res.data.message ==="Login Success with Phone"){
-  // firebase otp request
-    GenerateRecaptcha();
+    let mobile = +phone.slice(3, 13);
+    localStorage.setItem("phoneOTP", mobile);
+    try {
+      let res = await axios.post("http://localhost:8080/user/loginwithphone", {
+        phone: mobile,
+      });
 
-    const appVerifier= window.recaptchaVerifier;
-    signInWithPhoneNumber(authentication, phone, appVerifier)
-    .then((confirmationResult) => {
-      // SMS sent. Prompt user to type the code from the message, then sign the
-      // user in with confirmationResult.confirm(code).
-      window.confirmationResult = confirmationResult;
-      // ...
-    }).catch((error) => {
-      // Error; SMS not sent
-      console.log(error);
-      // ...
-    });
+      // res --- true
+      if (res.data.message === "Login Success with Phone") {
+        // firebase otp request
+        GenerateRecaptcha();
+        
+        loginUser(res.data.token)// setting user token to context
+        setShowOTP(true);
+        const appVerifier = window.recaptchaVerifier;
+        signInWithPhoneNumber(authentication, phone, appVerifier)
+        .then((confirmationResult) => {
+          // SMS sent. Prompt user to type the code from the message, then sign the
+          // user in with confirmationResult.confirm(code).
+          window.confirmationResult = confirmationResult;
+          // ...
+        })
+          .catch((error) => {
+            // Error; SMS not sent
+            console.log(error);
+            // ...
+          });
+      }
+      // else --> not in DB
+      else {
+        console.log("error");
+
+        // Navigate("/signup");
+      }
+    } catch (err) {
+  console.log(err);
+      // Navigate("/signup");
     }
-    // else --> not in DB
-     else{
-      alert("Signup with number")
-     }
-   }
-   catch(err){
-    alert("Signup with number")
-   }
-    
-
   };
   return (
     <Flex
@@ -85,6 +98,7 @@ export default function LoginPage() {
         <Heading lineHeight={1.1} fontSize={{ base: "2xl", md: "3xl" }}>
           Log In
         </Heading>
+        <Box>token:{token}</Box>
         <Text
           fontSize={{ base: "sm", sm: "md" }}
           color={useColorModeValue("gray.800", "gray.400")}
@@ -116,9 +130,10 @@ export default function LoginPage() {
         </form>
         <Box id="recaptcha-verify"> </Box>
         <Box textColor={"blue"} textDecoration={"underline"}>
-          <Link to="/login">Login with password</Link>
+          <Link to="/passLogin">Login with password</Link>
         </Box>
       </Stack>
+      {showOTP ? <VerifyOTP /> : null}
     </Flex>
   );
 }
