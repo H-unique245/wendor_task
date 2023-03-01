@@ -94,7 +94,7 @@ product.delete("/:id", async (req, res) => {
   }
 });
 
-product.patch('/edit/:id', async (req, res) => {
+product.put('/edit/:id', async (req, res) => {
   const payload = req.body;
   const { id } = req.params;
   try {

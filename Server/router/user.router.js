@@ -16,7 +16,7 @@ user.post("/signup", async (req, res) => {
   } else {
     let User = new UserModel({ name, email, phone, password: hashPassword });
     User.save();
-    res.send({ data: User });
+    res.send({ data: User,message:`User --> ${name} registered successfully!!` });
   }
 });
 
