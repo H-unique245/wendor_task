@@ -30,7 +30,7 @@ export default function PasswordLogin() {
   const handlePasswordLogin = async (e) => {
     e.preventDefault();
     try {
-      let res = await axios.post("http://localhost:8080/user/login", formData);
+      let res = await axios.post("https://wendor-inventory-api.onrender.com/user/login", formData);
       loginUser(res.data.token);
       localStorage.setItem("userToken",res.data.token) // setting user token to local Storage
       navigate("/");

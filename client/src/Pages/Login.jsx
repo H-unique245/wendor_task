@@ -45,7 +45,7 @@ export default function LoginPage() {
     let mobile = +phone.slice(3, 13);
     localStorage.setItem("phoneOTP", mobile);
     try {
-      let res = await axios.post("http://localhost:8080/user/loginwithphone", {
+      let res = await axios.post("https://wendor-inventory-api.onrender.com/user/loginwithphone", {
         phone: mobile,
       });
 
@@ -135,6 +135,7 @@ export default function LoginPage() {
               bg={"blue.400"}
               color={"white"}
               type={"submit"}
+              mt={4}
               value={"Request OTP"}
               _hover={{
                 bg: "blue.500",

@@ -37,7 +37,7 @@ function Home() {
   const toast = useToast();
 
   async function getData() {
-    let res = await axios.get("http://localhost:8080/product/usersProduct", {
+    let res = await axios.get("https://wendor-inventory-api.onrender.com/product/usersProduct", {
       headers: { authorization: token },
     });
     setProducts(res.data.data);
@@ -47,12 +47,12 @@ function Home() {
     setDataUpdate(data);
   };
   const getAllProducts = async () => {
-    let res = await axios.get(`http://localhost:8080/product`);
+    let res = await axios.get(`https://wendor-inventory-api.onrender.com/product`);
     setAllProducts(res.data.data);
     onOpen();
   };
   const handleDelete = async (id) => {
-    let res = await axios.delete(`http://localhost:8080/product/${id}`);
+    let res = await axios.delete(`https://wendor-inventory-api.onrender.com/product/${id}`);
     toast({
       title: res.data.message,
       status: "warning",

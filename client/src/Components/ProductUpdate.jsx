@@ -35,7 +35,7 @@ function ProductUpdate({
 
   const handleUpdate = async (payload) => {
     let res = await axios.put(
-      `http://localhost:8080/product/edit/${payload._id}`,
+      `https://wendor-inventory-api.onrender.com/product/edit/${payload._id}`,
       payload
     );
     onClose();

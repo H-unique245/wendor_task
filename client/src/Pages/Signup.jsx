@@ -35,7 +35,7 @@ export default function SignupForm() {
 
     console.log(user);
     try {
-      let res = await axios.post("http://localhost:8080/user/signup", user);
+      let res = await axios.post("https://wendor-inventory-api.onrender.com/user/signup", user);
       toast({
         title: res.data.message,
         status: "success",

@@ -38,7 +38,7 @@ function AddProduct({ isAddModalVisible, setIsAddModalVisible }) {
   const handleProductAdd = async () => {
     console.log("token :", token);
     try {
-      let res = await axios.post(`http://localhost:8080/product/add`, product, {
+      let res = await axios.post(`https://wendor-inventory-api.onrender.com/product/add`, product, {
         headers: {
           Authorization: token,
         },

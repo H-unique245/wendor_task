@@ -12,6 +12,7 @@ const AppContextProvider = ({ children }) => {
   };
   const logoutUser = () => {
     setUserToken(null);
+    localStorage.removeItem("userToken")
     setIsAuth(false);
   };
 
