@@ -1,10 +1,10 @@
 const express = require("express");
 const ProductModel = require("../modules/product.model");
 const jwt = require("jsonwebtoken");
+require("dotenv");
 
 const product = express.Router();
-
-express.json();
+product.use(express.json());
 
 // title,description,price,image_url,user_id
 product.get("/", async (req, res) => {
@@ -61,7 +61,7 @@ product.post("/add", (req, res) => {
   const { title, description, price, image_url } = req.body;
 
   try {
-    const verification = jwt.verify(token, "UNI@245_wendor");
+    const verification = jwt.verify(token, process.env.JWT_SECRET_KEY);
     if (verification) {
       const decoded = jwt.decode(token);
       let user_id = decoded.id;
@@ -94,18 +94,20 @@ product.delete("/:id", async (req, res) => {
   }
 });
 
-product.put('/edit/:id', async (req, res) => {
+product.put("/edit/:id", async (req, res) => {
   const payload = req.body;
   const { id } = req.params;
   try {
-      const UpdateProduct = await ProductModel.findByIdAndUpdate({_id:id},payload);
-      await UpdateProduct.save();
-      res.send({ message: "Product Updated Successfully!!" })
+    const UpdateProduct = await ProductModel.findByIdAndUpdate(
+      { _id: id },
+      payload
+    );
+    await UpdateProduct.save();
+    res.send({ message: "Product Updated Successfully!!" });
   } catch (err) {
-      res.status(400).send({ message: err.message })
+    res.status(400).send({ message: err.message });
   }
-})
+});
 
 module.exports = product;
 
-// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZmRhY2I4OTlmM2Y4Y2Q0ZTkzNTQyMiIsIm5hbWUiOiJCYXRtYW4iLCJlbWFpbCI6ImJhdG1hbkBnYW1pbC5jb20iLCJpYXQiOjE2Nzc1Njk5MjMsImV4cCI6MTY3ODE3NDcyM30.ESJf6zeGQPkN_Xm_S2XTv12EIZKcPVhm5ZFg_K8V4XU

@@ -3,7 +3,7 @@ const user = express.Router();
 const UserModel = require("../modules/user.model");
 const argon2i = require("argon2");
 const jwt = require("jsonwebtoken");
-
+require("dotenv");
 user.use(express.json());
 
 user.post("/signup", async (req, res) => {
@@ -16,7 +16,10 @@ user.post("/signup", async (req, res) => {
   } else {
     let User = new UserModel({ name, email, phone, password: hashPassword });
     User.save();
-    res.send({ data: User,message:`User --> ${name} registered successfully!!` });
+    res.send({
+      data: User,
+      message: `User --> ${name} registered successfully!!`,
+    });
   }
 });
 
@@ -27,14 +30,14 @@ user.post("/loginwithphone", async (req, res) => {
   if (user) {
     const token = jwt.sign(
       { id: user._id, name: user.name, email: user.email },
-      "UNI@245_wendor",
+      process.env.JWT_SECRET_KEY,
       {
         expiresIn: "7 days",
       }
     );
     return res.send({ message: "Login Success with Phone", token });
   }
-  return res.status(401).send({message:"Invalid credentials"});
+  return res.status(401).send({ message: "Invalid credentials" });
 });
 
 user.post("/login", async (req, res) => {
@@ -45,7 +48,7 @@ user.post("/login", async (req, res) => {
   if (user && decrypt_Pass) {
     const token = jwt.sign(
       { id: user._id, name: user.name, email: user.email },
-      "UNI@245_wendor",
+      process.env.JWT_SECRET_KEY,
       {
         expiresIn: "7 days",
       }
