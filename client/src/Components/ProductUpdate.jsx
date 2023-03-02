@@ -1,41 +1,43 @@
-import { Button,
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalFooter,
-    ModalBody,
-    ModalCloseButton,
-    FormControl,
-    FormLabel,
-    Input,
-    useDisclosure,
-    useToast,
- } from '@chakra-ui/react'
-import axios from 'axios';
-import React, { useEffect, useRef, useState } from 'react'
+import {
+  Button,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  FormControl,
+  FormLabel,
+  Input,
+  useToast,
+} from "@chakra-ui/react";
+import axios from "axios";
+import React, { useState } from "react";
 
-function ProductUpdate({ isUpdateModalVisible, setIsUpdateModalVisible,data }) {
-    const toast = useToast();
-  const initialRef = useRef(null);
-  const finalRef = useRef(null);
+function ProductUpdate({
+  isUpdateModalVisible,
+  setIsUpdateModalVisible,
+  data,
+}) {
+  const toast = useToast();
+
   const [product, setProduct] = useState(data);
- 
+
   const onClose = () => {
     setIsUpdateModalVisible(false);
-  }; 
-
-  const handleformData = ({ target }) => {
-    let val = target.value;
-    if (target.name === "price") {
-      val = +target.value;
-    }
-    setProduct({ ...product, [target.name]: val });
   };
 
-  const handleUpdate=async(payload)=>{
+  const handleformData = (e) => {
+    const { name, value } = e.target;
+    setProduct({ ...product, [name]: value });
+  };
 
-    let res = await axios.put(`http://localhost:8080/product/edit/${payload._id}`,payload)
+  const handleUpdate = async (payload) => {
+    let res = await axios.put(
+      `http://localhost:8080/product/edit/${payload._id}`,
+      payload
+    );
     onClose();
     toast({
       title: res.data.message,
@@ -44,77 +46,72 @@ function ProductUpdate({ isUpdateModalVisible, setIsUpdateModalVisible,data }) {
       isClosable: true,
       position: "top",
     });
-  }
-
-//   useEffect(()=>{
-//     setProduct(data)
-//   },[]);
+  };
 
   return (
     <div>
-          <Modal
-          initialFocusRef={initialRef}
-          finalFocusRef={finalRef}
-          isOpen={isUpdateModalVisible}
-          onClose={onClose}
-        >
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Update Product</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody pb={6}>
-              <FormControl>
-                <FormLabel> Image URL</FormLabel>
-                <Input
-                  onChange={handleformData}
-                  ref={initialRef}
-                  type="url"
-                  name="image_url"
-                  value={product.image_url}
-                />
-              </FormControl>
-              <FormControl>
-                <FormLabel> name</FormLabel>
-                <Input
-                  onChange={handleformData}
-                  ref={initialRef}
-                  placeholder="Product Name"
-                  name="title"
-                  value={product.title}
-                />
-              </FormControl>
+      <Modal isOpen={isUpdateModalVisible} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Update Product</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <FormControl>
+              <FormLabel> Image URL</FormLabel>
+              <Input
+                type="url"
+                value={product.image_url}
+                name="image_url"
+                onChange={handleformData}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel> name</FormLabel>
+              <Input
+                placeholder="Product Name"
+                value={product.title}
+                name="title"
+                type={"text"}
+                onChange={handleformData}
+              />
+            </FormControl>
 
-              <FormControl mt={4}>
-                <FormLabel>Description</FormLabel>
-                <Input
-                  onChange={handleformData}
-                  name="description"
-                  placeholder="description"
-                  value={product.description}
-                />
-              </FormControl>
-              <FormControl mt={4}>
-                <FormLabel>Price</FormLabel>
-                <Input
-                  onChange={handleformData}
-                  placeholder="In ₹ "
-                  value={product.price}
-                  name="price"
-                />
-              </FormControl>
-            </ModalBody>
+            <FormControl mt={4}>
+              <FormLabel>Description</FormLabel>
+              <Input
+                value={product.description}
+                name="description"
+                type={"text"}
+                placeholder="description"
+                onChange={handleformData}
+              />
+            </FormControl>
+            <FormControl mt={4}>
+              <FormLabel>Price</FormLabel>
+              <Input
+                placeholder="In ₹ "
+                value={product.price}
+                type="number"
+                name="price"
+                onChange={handleformData}
+              />
+            </FormControl>
+          </ModalBody>
 
-            <ModalFooter>
-              <Button colorScheme="blue" mr={3} onClick={()=>handleUpdate(product)}>
-                Save
-              </Button>
-              <Button onClick={onClose}>Cancel</Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
+          <ModalFooter>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              onClick={() => handleUpdate(product)}
+            >
+              Save
+            </Button>
+            <Button onClick={onClose}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
-  
-  )
+  );
 }
 
-export default ProductUpdate
+export default ProductUpdate;

@@ -8,11 +8,12 @@ import {
   useColorModeValue,
   FormLabel,
   Box,
+  useToast,
 } from "@chakra-ui/react";
 import { useContext, useState } from "react";
 import { authentication } from "../Components/firbase-config";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import VerifyOTP from "../Components/OTPPage";
 import { AppContext } from "../Context/AppContext";
@@ -32,9 +33,11 @@ const GenerateRecaptcha = () => {
 };
 
 export default function LoginPage() {
+  const { loginUser } = useContext(AppContext);
   const [phone, setPhone] = useState("+91");
   const [showOTP, setShowOTP] = useState(false);
-  const { loginUser,token } = useContext(AppContext);
+  const toast = useToast();
+  const navigate = useNavigate();
 
   const hanldeSubmitPhone = async (e) => {
     e.preventDefault();
@@ -50,17 +53,17 @@ export default function LoginPage() {
       if (res.data.message === "Login Success with Phone") {
         // firebase otp request
         GenerateRecaptcha();
-        
-        loginUser(res.data.token)// setting user token to context
         setShowOTP(true);
         const appVerifier = window.recaptchaVerifier;
         signInWithPhoneNumber(authentication, phone, appVerifier)
-        .then((confirmationResult) => {
-          // SMS sent. Prompt user to type the code from the message, then sign the
-          // user in with confirmationResult.confirm(code).
-          window.confirmationResult = confirmationResult;
-          // ...
-        })
+          .then((confirmationResult) => {
+            // SMS sent. Prompt user to type the code from the message, then sign the
+            // user in with confirmationResult.confirm(code).
+            loginUser(res.data.token);
+            localStorage.setItem("userToken", res.data.token); // setting user token to localStorage
+            window.confirmationResult = confirmationResult;
+            // ...
+          })
           .catch((error) => {
             // Error; SMS not sent
             console.log(error);
@@ -69,13 +72,25 @@ export default function LoginPage() {
       }
       // else --> not in DB
       else {
-        console.log("error");
-
-        // Navigate("/signup");
+        toast({
+          title: "User not registered, need to register first !!",
+          status: "warning",
+          duration: 2000,
+          isClosable: true,
+          position: "top",
+        });
+        navigate("/signup");
       }
     } catch (err) {
-  console.log(err);
-      // Navigate("/signup");
+      console.log(err);
+      toast({
+        title: "Something went wrong, try after some time!",
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
+      navigate("/");
     }
   };
   return (
@@ -98,7 +113,6 @@ export default function LoginPage() {
         <Heading lineHeight={1.1} fontSize={{ base: "2xl", md: "3xl" }}>
           Log In
         </Heading>
-        <Box>token:{token}</Box>
         <Text
           fontSize={{ base: "sm", sm: "md" }}
           color={useColorModeValue("gray.800", "gray.400")}
