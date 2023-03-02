@@ -30,7 +30,7 @@ const options = {
 const specs = swaggerJsDoc(options);
 const app = express();
 
-app.use("/", swaggerUI.serve, swaggerUI.setup(specs));
+app.use("/api", swaggerUI.serve, swaggerUI.setup(specs));
 app.use(express.json());
 app.use(cors());
 app.use("/user", UserRoute);
