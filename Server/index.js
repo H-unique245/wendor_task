@@ -36,11 +36,11 @@ app.use(cors());
 app.use("/user", UserRoute);
 app.use("/product", ProductRoute);
 
-// app.get("/", (req, res) => {
-//   res.send(
-//     "Welcome to Inventory Backend!! \n This is inventory API from Wendor AI."
-//   );
-// });
+app.get("/", (req, res) => {
+  res.send(
+    "Welcome to Inventory Backend!! \n This is inventory API from Wendor AI."
+  );
+});
 
 app.listen(PORT, async () => {
   try {

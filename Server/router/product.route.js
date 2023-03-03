@@ -212,6 +212,37 @@ product.post("/add", (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /product/delete/{id}:
+ *  delete:
+ *    summary: Delete the product by the id
+ *    tags: [Products]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: The product id
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/Product'
+ *    responses:
+ *      200:
+ *        description: Product Deleted Successfully!!
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/Product'
+ *      400:
+ *        description: Error message
+ *      500:
+ *        description: Some error happened
+ */
 product.delete("/:id", async (req, res) => {
   let Id = req.params.id;
   try {
