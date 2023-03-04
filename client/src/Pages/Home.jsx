@@ -37,29 +37,53 @@ function Home() {
   const toast = useToast();
 
   async function getData() {
-    let res = await axios.get("https://wendor-inventory-api.onrender.com/product/usersProduct", {
+try{    let res = await axios.get("https://wendor-inventory-api.onrender.com/product/usersProduct", {
       headers: { authorization: token },
     });
-    setProducts(res.data.data);
+    setProducts(res.data.data);}
+  catch(err){
+    alert(err);
+  }
   }
   const handleUpdateModal = (data) => {
     setIsModalupdateVisible(true);
     setDataUpdate(data);
   };
   const getAllProducts = async () => {
-    let res = await axios.get(`https://wendor-inventory-api.onrender.com/product`);
+   try{ let res = await axios.get(`https://wendor-inventory-api.onrender.com/product`);
     setAllProducts(res.data.data);
-    onOpen();
+    onOpen();}
+    catch(err){
+      toast({
+        title: err.message,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
+    }
   };
   const handleDelete = async (id) => {
-    let res = await axios.delete(`https://wendor-inventory-api.onrender.com/product/${id}`);
-    toast({
-      title: res.data.message,
-      status: "warning",
-      duration: 2000,
-      isClosable: true,
-      position: "top",
-    });
+    try{
+
+      let res = await axios.delete(`https://wendor-inventory-api.onrender.com/product/${id}`);
+      toast({
+        title: res.data.message,
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
+    }
+    catch(err){
+      toast({
+        title: err.message,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
+    }
   };
   useEffect(() => {
     getData();
@@ -79,7 +103,7 @@ function Home() {
           <DrawerHeader>All Products in Inventory</DrawerHeader>
           <DrawerBody bgGradient="linear(to-r, gray.300, yellow.400, pink.200)">
             <SimpleGrid columns={[1, 2, 3]} gap={5} p={10}>
-              {AllProducts.map(
+              {AllProducts && AllProducts?.map(
                 ({ _id, title, description, price, image_url, user_id }) => (
                   <ProductCard
                     key={_id}
@@ -124,7 +148,7 @@ function Home() {
             )}
           </Box>
           <SimpleGrid columns={[2, 3, 4]} gap={5} p={10}>
-            {products.map(({ _id, title, description, price, image_url }) => (
+            {products && products?.map(({ _id, title, description, price, image_url }) => (
               <Card maxW="sm" key={_id} boxShadow={"md"}>
                 <CardBody>
                   <Image src={image_url} alt={title} borderRadius="lg" />
